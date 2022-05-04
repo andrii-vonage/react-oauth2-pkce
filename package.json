@@ -39,10 +39,12 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
+    "@types/create-hash": "^1.2.2",
     "@types/jest": "^25.1.4",
     "@types/jwt-decode": "^2.2.1",
     "@types/mocha": "^8.0.1",
     "@types/node": "^12.12.38",
+    "@types/randombytes": "^2.0.0",
     "@types/react": "^16.9.27",
     "@types/react-dom": "^16.9.7",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
@@ -78,6 +80,8 @@
     "dist"
   ],
   "dependencies": {
-    "jwt-decode": "^2.2.0"
+    "create-hash": "^1.2.0",
+    "jwt-decode": "^2.2.0",
+    "randombytes": "^2.1.0"
   }
 }
