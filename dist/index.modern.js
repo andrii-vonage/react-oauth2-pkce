@@ -287,6 +287,8 @@ var AuthService = /*#__PURE__*/function () {
         scopes = _this$props.scopes,
         audience = _this$props.audience;
     var pkce = createPKCECodes();
+    var state = base64URLEncode(randomBytes(16));
+    window.localStorage.setItem('pkce_state', state);
     window.localStorage.setItem('pkce', JSON.stringify(pkce));
     window.localStorage.setItem('preAuthUri', location.href);
     window.localStorage.removeItem('auth');
@@ -301,7 +303,8 @@ var AuthService = /*#__PURE__*/function () {
       audience: audience
     }), {}, {
       codeChallenge: codeChallenge,
-      codeChallengeMethod: 'S256'
+      codeChallengeMethod: 'S256',
+      state: state
     });
 
     var url = (authorizeEndpoint || provider + "/authorize") + "?" + toUrlEncoded(query);
@@ -365,6 +368,12 @@ var AuthService = /*#__PURE__*/function () {
           if (isRefresh && !json.refresh_token) {
             json.refresh_token = payload.refresh_token;
           }
+
+          if (json.state && json.state !== _this7.getItem('pkce_state')) {
+            console.warn("State " + json.state + " doesn't match");
+          }
+
+          _this7.removeItem('pkce_state');
 
           _this7.setAuthTokens(json);
 

@@ -1,4 +1,3 @@
-// import { randomBytes, createHash } from 'crypto'
 import createHash from 'create-hash'
 import randomBytes from 'randombytes'
 
