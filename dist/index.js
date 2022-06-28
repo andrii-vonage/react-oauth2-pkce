@@ -219,7 +219,7 @@ var AuthService = /*#__PURE__*/function () {
     var _this$props$refreshSl = this.props.refreshSlack,
         refreshSlack = _this$props$refreshSl === void 0 ? 5 : _this$props$refreshSl;
     var now = new Date().getTime();
-    auth.expires_at = now + (auth.expires_in + refreshSlack) * 1000;
+    auth.expires_at = now + (+auth.expires_in + refreshSlack) * 1000;
     window.localStorage.setItem('auth', JSON.stringify(auth));
   };
 
