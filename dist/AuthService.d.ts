@@ -40,6 +40,7 @@ export interface TokenRequestBody {
 export declare class AuthService<TIDToken = JWTIDToken> {
     props: AuthServiceProps;
     timeout?: number;
+    authListener?: (auth: AuthTokens) => void;
     constructor(props: AuthServiceProps);
     getUser(): {};
     getCodeFromLocation(location: Location): string | null;
@@ -48,6 +49,7 @@ export declare class AuthService<TIDToken = JWTIDToken> {
     removeItem(key: string): void;
     getPkce(): PKCECodePair;
     setAuthTokens(auth: AuthTokens): void;
+    setAuthListener(authListener: (auth: AuthTokens) => void): void;
     getAuthTokens(): AuthTokens;
     isPending(): boolean;
     isAuthenticated(): boolean;

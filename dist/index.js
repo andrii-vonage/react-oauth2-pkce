@@ -221,6 +221,14 @@ var AuthService = /*#__PURE__*/function () {
     var now = new Date().getTime();
     auth.expires_at = now + (+auth.expires_in + refreshSlack) * 1000;
     window.localStorage.setItem('auth', JSON.stringify(auth));
+
+    if (this.authListener) {
+      this.authListener(auth);
+    }
+  };
+
+  _proto.setAuthListener = function setAuthListener(authListener) {
+    this.authListener = authListener;
   };
 
   _proto.getAuthTokens = function getAuthTokens() {

@@ -50,7 +50,7 @@ export interface TokenRequestBody {
 export class AuthService<TIDToken = JWTIDToken> {
   props: AuthServiceProps
   timeout?: number
-  authListener: (auth: AuthTokens) => void
+  authListener?: (auth: AuthTokens) => void
 
   constructor(props: AuthServiceProps) {
     this.props = props
