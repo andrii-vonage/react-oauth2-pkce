@@ -50,6 +50,7 @@ export interface TokenRequestBody {
 export class AuthService<TIDToken = JWTIDToken> {
   props: AuthServiceProps
   timeout?: number
+  authListener: (auth: AuthTokens) => void
 
   constructor(props: AuthServiceProps) {
     this.props = props
@@ -131,6 +132,13 @@ export class AuthService<TIDToken = JWTIDToken> {
     const now = new Date().getTime()
     auth.expires_at = now + (+auth.expires_in + refreshSlack) * 1000
     window.localStorage.setItem('auth', JSON.stringify(auth))
+    if (this.authListener) {
+      this.authListener(auth)
+    }
+  }
+
+  setAuthListener(authListener: (auth: AuthTokens) => void): void {
+    this.authListener = authListener
   }
 
   getAuthTokens(): AuthTokens {
