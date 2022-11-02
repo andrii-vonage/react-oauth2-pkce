@@ -153,7 +153,15 @@ export class AuthService<TIDToken = JWTIDToken> {
   }
 
   isAuthenticated(): boolean {
-    return window.localStorage.getItem('auth') !== null
+    const auth = window.localStorage.getItem('auth')
+
+    if (!auth) {
+      return false
+    }
+
+    const { access_token, error } = JSON.parse(auth)
+
+    return Boolean(access_token) && !error
   }
 
   async logout(shouldEndSession = false): Promise<boolean> {

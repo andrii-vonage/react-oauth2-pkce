@@ -240,7 +240,17 @@ var AuthService = /*#__PURE__*/function () {
   };
 
   _proto.isAuthenticated = function isAuthenticated() {
-    return window.localStorage.getItem('auth') !== null;
+    var auth = window.localStorage.getItem('auth');
+
+    if (!auth) {
+      return false;
+    }
+
+    var _JSON$parse = JSON.parse(auth),
+        access_token = _JSON$parse.access_token,
+        error = _JSON$parse.error;
+
+    return Boolean(access_token) && !error;
   };
 
   _proto.logout = function logout(shouldEndSession) {
