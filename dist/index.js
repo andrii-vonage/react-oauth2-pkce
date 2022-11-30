@@ -383,27 +383,41 @@ var AuthService = /*#__PURE__*/function () {
         method: 'POST',
         body: toUrlEncoded(payload)
       })).then(function (response) {
+        function _temp2() {
+          return _this7.getAuthTokens();
+        }
+
         _this7.removeItem('pkce');
 
-        return Promise.resolve(response.json()).then(function (json) {
-          if (isRefresh && !json.refresh_token) {
-            json.refresh_token = payload.refresh_token;
+        var _temp = function () {
+          if (isRefresh && !response.ok) {
+            _this7.removeItem('auth');
+
+            _this7.removeCodeFromLocation();
+
+            _this7.authorize();
+          } else {
+            return Promise.resolve(response.json()).then(function (json) {
+              if (isRefresh && !json.refresh_token) {
+                json.refresh_token = payload.refresh_token;
+              }
+
+              if (json.state && json.state !== _this7.getItem('pkce_state')) {
+                console.warn("State " + json.state + " doesn't match");
+              }
+
+              _this7.removeItem('pkce_state');
+
+              _this7.setAuthTokens(json);
+
+              if (autoRefresh) {
+                _this7.startTimer();
+              }
+            });
           }
+        }();
 
-          if (json.state && json.state !== _this7.getItem('pkce_state')) {
-            console.warn("State " + json.state + " doesn't match");
-          }
-
-          _this7.removeItem('pkce_state');
-
-          _this7.setAuthTokens(json);
-
-          if (autoRefresh) {
-            _this7.startTimer();
-          }
-
-          return _this7.getAuthTokens();
-        });
+        return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
       });
     } catch (e) {
       return Promise.reject(e);
