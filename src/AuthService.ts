@@ -268,12 +268,14 @@ export class AuthService<TIDToken = JWTIDToken> {
       body: toUrlEncoded(payload)
     })
     this.removeItem('pkce')
-    if (isRefresh && !response.ok) {
+
+    const json = await response.json()
+
+    if (isRefresh && json.error) {
       this.removeItem('auth')
       this.removeCodeFromLocation()
       this.authorize()
     } else {
-      const json = await response.json()
       if (isRefresh && !json.refresh_token) {
         json.refresh_token = payload.refresh_token
       }
@@ -287,6 +289,7 @@ export class AuthService<TIDToken = JWTIDToken> {
         this.startTimer()
       }
     }
+
     return this.getAuthTokens()
   }
 
