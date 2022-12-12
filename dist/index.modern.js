@@ -383,13 +383,17 @@ var AuthService = /*#__PURE__*/function () {
         _this7.removeItem('pkce');
 
         return Promise.resolve(response.json()).then(function (json) {
-          if (isRefresh && json.error) {
+          if (json.error && !_this7.getItem('pkce_renew')) {
+            window.localStorage.setItem('pkce_renew', 'true');
+
             _this7.removeItem('auth');
 
             _this7.removeCodeFromLocation();
 
             _this7.authorize();
           } else {
+            _this7.removeItem('pkce_renew');
+
             if (isRefresh && !json.refresh_token) {
               json.refresh_token = payload.refresh_token;
             }

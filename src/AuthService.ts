@@ -271,11 +271,13 @@ export class AuthService<TIDToken = JWTIDToken> {
 
     const json = await response.json()
 
-    if (isRefresh && json.error) {
+    if (json.error && !this.getItem('pkce_renew')) {
+      window.localStorage.setItem('pkce_renew', 'true')
       this.removeItem('auth')
       this.removeCodeFromLocation()
       this.authorize()
     } else {
+      this.removeItem('pkce_renew')
       if (isRefresh && !json.refresh_token) {
         json.refresh_token = payload.refresh_token
       }
