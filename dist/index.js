@@ -383,20 +383,10 @@ var AuthService = /*#__PURE__*/function () {
         method: 'POST',
         body: toUrlEncoded(payload)
       })).then(function (response) {
-        _this7.removeItem('pkce');
+        function _temp2() {
+          _this7.removeItem('pkce');
 
-        return Promise.resolve(response.json()).then(function (json) {
-          if (json.error && !_this7.getItem('pkce_renew')) {
-            window.localStorage.setItem('pkce_renew', 'true');
-
-            _this7.removeItem('auth');
-
-            _this7.removeCodeFromLocation();
-
-            _this7.authorize();
-          } else {
-            _this7.removeItem('pkce_renew');
-
+          return Promise.resolve(response.json()).then(function (json) {
             if (isRefresh && !json.refresh_token) {
               json.refresh_token = payload.refresh_token;
             }
@@ -412,10 +402,20 @@ var AuthService = /*#__PURE__*/function () {
             if (autoRefresh) {
               _this7.startTimer();
             }
-          }
 
-          return _this7.getAuthTokens();
-        });
+            return _this7.getAuthTokens();
+          });
+        }
+
+        var _temp = function () {
+          if (isRefresh && !response.ok) {
+            return Promise.resolve(_this7.logout()).then(function () {
+              return Promise.resolve(_this7.login()).then(function () {});
+            });
+          }
+        }();
+
+        return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
       });
     } catch (e) {
       return Promise.reject(e);

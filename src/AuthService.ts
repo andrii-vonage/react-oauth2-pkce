@@ -267,29 +267,24 @@ export class AuthService<TIDToken = JWTIDToken> {
       method: 'POST',
       body: toUrlEncoded(payload)
     })
+    if (isRefresh && !response.ok) {
+      await this.logout()
+      await this.login()
+    }
     this.removeItem('pkce')
-
     const json = await response.json()
 
-    if (json.error && !this.getItem('pkce_renew')) {
-      window.localStorage.setItem('pkce_renew', 'true')
-      this.removeItem('auth')
-      this.removeCodeFromLocation()
-      this.authorize()
-    } else {
-      this.removeItem('pkce_renew')
-      if (isRefresh && !json.refresh_token) {
-        json.refresh_token = payload.refresh_token
-      }
-      if (json.state && json.state !== this.getItem('pkce_state')) {
-        console.warn(`State ${json.state} doesn't match`)
-      }
+    if (isRefresh && !json.refresh_token) {
+      json.refresh_token = payload.refresh_token
+    }
+    if (json.state && json.state !== this.getItem('pkce_state')) {
+      console.warn(`State ${json.state} doesn't match`)
+    }
 
-      this.removeItem('pkce_state')
-      this.setAuthTokens(json as AuthTokens)
-      if (autoRefresh) {
-        this.startTimer()
-      }
+    this.removeItem('pkce_state')
+    this.setAuthTokens(json as AuthTokens)
+    if (autoRefresh) {
+      this.startTimer()
     }
 
     return this.getAuthTokens()
