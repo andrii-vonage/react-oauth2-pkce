@@ -380,31 +380,43 @@ var AuthService = /*#__PURE__*/function () {
         method: 'POST',
         body: toUrlEncoded(payload)
       })).then(function (response) {
-        function _temp2() {
+        function _temp4() {
           _this7.removeItem('pkce');
 
           return Promise.resolve(response.json()).then(function (json) {
-            if (isRefresh && !json.refresh_token) {
-              json.refresh_token = payload.refresh_token;
+            function _temp2() {
+              if (isRefresh && !json.refresh_token) {
+                json.refresh_token = payload.refresh_token;
+              }
+
+              if (json.state && json.state !== _this7.getItem('pkce_state')) {
+                console.warn("State " + json.state + " doesn't match");
+              }
+
+              _this7.removeItem('pkce_state');
+
+              _this7.setAuthTokens(json);
+
+              if (autoRefresh) {
+                _this7.startTimer();
+              }
+
+              return _this7.getAuthTokens();
             }
 
-            if (json.state && json.state !== _this7.getItem('pkce_state')) {
-              console.warn("State " + json.state + " doesn't match");
-            }
+            var _temp = function () {
+              if (json.error === 'invalid_grant') {
+                return Promise.resolve(_this7.logout()).then(function () {
+                  return Promise.resolve(_this7.login()).then(function () {});
+                });
+              }
+            }();
 
-            _this7.removeItem('pkce_state');
-
-            _this7.setAuthTokens(json);
-
-            if (autoRefresh) {
-              _this7.startTimer();
-            }
-
-            return _this7.getAuthTokens();
+            return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
           });
         }
 
-        var _temp = function () {
+        var _temp3 = function () {
           if (isRefresh && !response.ok) {
             return Promise.resolve(_this7.logout()).then(function () {
               return Promise.resolve(_this7.login()).then(function () {});
@@ -412,7 +424,7 @@ var AuthService = /*#__PURE__*/function () {
           }
         }();
 
-        return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
+        return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
       });
     } catch (e) {
       return Promise.reject(e);

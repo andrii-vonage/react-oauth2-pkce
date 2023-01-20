@@ -274,6 +274,12 @@ export class AuthService<TIDToken = JWTIDToken> {
     this.removeItem('pkce')
     const json = await response.json()
 
+    // "invalid_grant" error workaround
+    if (json.error === 'invalid_grant') {
+      await this.logout()
+      await this.login()
+    }
+
     if (isRefresh && !json.refresh_token) {
       json.refresh_token = payload.refresh_token
     }
