@@ -260,6 +260,7 @@ export class AuthService<TIDToken = JWTIDToken> {
       }
     }
 
+    const retry = this.getItem('auth_retry')
     const response = await fetch(`${tokenEndpoint || `${provider}/token`}`, {
       headers: {
         'Content-Type': contentType || 'application/x-www-form-urlencoded'
@@ -268,16 +269,26 @@ export class AuthService<TIDToken = JWTIDToken> {
       body: toUrlEncoded(payload)
     })
     if (isRefresh && !response.ok) {
-      await this.logout()
-      await this.login()
+      if (retry === 'true') {
+        this.removeItem('auth_retry')
+      } else {
+        window.localStorage.setItem('auth_retry', 'true')
+        await this.logout()
+        await this.login()
+      }
     }
     this.removeItem('pkce')
     const json = await response.json()
 
     // "invalid_grant" error workaround
     if (json.error === 'invalid_grant') {
-      await this.logout()
-      await this.login()
+      if (retry === 'true') {
+        this.removeItem('auth_retry')
+      } else {
+        window.localStorage.setItem('auth_retry', 'true')
+        await this.logout()
+        await this.login()
+      }
     }
 
     if (isRefresh && !json.refresh_token) {

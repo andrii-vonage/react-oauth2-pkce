@@ -376,6 +376,8 @@ var AuthService = /*#__PURE__*/function () {
         });
       }
 
+      var retry = _this7.getItem('auth_retry');
+
       return Promise.resolve(fetch("" + (tokenEndpoint || provider + "/token"), {
         headers: {
           'Content-Type': contentType || 'application/x-www-form-urlencoded'
@@ -383,11 +385,11 @@ var AuthService = /*#__PURE__*/function () {
         method: 'POST',
         body: toUrlEncoded(payload)
       })).then(function (response) {
-        function _temp4() {
+        function _temp6() {
           _this7.removeItem('pkce');
 
           return Promise.resolve(response.json()).then(function (json) {
-            function _temp2() {
+            function _temp4() {
               if (isRefresh && !json.refresh_token) {
                 json.refresh_token = payload.refresh_token;
               }
@@ -407,27 +409,45 @@ var AuthService = /*#__PURE__*/function () {
               return _this7.getAuthTokens();
             }
 
-            var _temp = function () {
+            var _temp3 = function () {
               if (json.error === 'invalid_grant') {
+                var _temp7 = function () {
+                  if (retry === 'true') {
+                    _this7.removeItem('auth_retry');
+                  } else {
+                    window.localStorage.setItem('auth_retry', 'true');
+                    return Promise.resolve(_this7.logout()).then(function () {
+                      return Promise.resolve(_this7.login()).then(function () {});
+                    });
+                  }
+                }();
+
+                if (_temp7 && _temp7.then) return _temp7.then(function () {});
+              }
+            }();
+
+            return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
+          });
+        }
+
+        var _temp5 = function () {
+          if (isRefresh && !response.ok) {
+            var _temp8 = function () {
+              if (retry === 'true') {
+                _this7.removeItem('auth_retry');
+              } else {
+                window.localStorage.setItem('auth_retry', 'true');
                 return Promise.resolve(_this7.logout()).then(function () {
                   return Promise.resolve(_this7.login()).then(function () {});
                 });
               }
             }();
 
-            return _temp && _temp.then ? _temp.then(_temp2) : _temp2(_temp);
-          });
-        }
-
-        var _temp3 = function () {
-          if (isRefresh && !response.ok) {
-            return Promise.resolve(_this7.logout()).then(function () {
-              return Promise.resolve(_this7.login()).then(function () {});
-            });
+            if (_temp8 && _temp8.then) return _temp8.then(function () {});
           }
         }();
 
-        return _temp3 && _temp3.then ? _temp3.then(_temp4) : _temp4(_temp3);
+        return _temp5 && _temp5.then ? _temp5.then(_temp6) : _temp6(_temp5);
       });
     } catch (e) {
       return Promise.reject(e);
